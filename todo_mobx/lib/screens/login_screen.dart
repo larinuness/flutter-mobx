@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:todomobx/stores/login_store.dart';
+import '../stores/login_store.dart';
 import '../widgets/custom_icon_button.dart';
 import '../widgets/custom_text_field.dart';
 import 'list_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,13 +13,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  LoginStore loginStore = LoginStore();
+  late LoginStore loginStore;
 
   late ReactionDisposer disposer;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    loginStore = Provider.of<LoginStore>(context);
 
     //maneira 1 de trocar de tela
 
@@ -66,15 +68,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    CustomTextField(
-                      obscure: false,
-                      hint: 'E-mail',
-                      prefix: Icon(Icons.account_circle),
-                      textInputType: TextInputType.emailAddress,
-                      //passa a função sem os parametros
-                      onChanged: loginStore.setEmail,
-                      enabled: true,
-                    ),
+                    Observer(builder: (_) {
+                      return CustomTextField(
+                        obscure: false,
+                        hint: 'E-mail',
+                        prefix: Icon(Icons.account_circle),
+                        textInputType: TextInputType.emailAddress,
+                        //passa a função sem os parametros
+                        onChanged: loginStore.setEmail,
+                        enabled: !loginStore.loading,
+                      );
+                    }),
                     const SizedBox(
                       height: 16,
                     ),
